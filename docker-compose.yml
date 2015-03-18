@@ -1,0 +1,22 @@
+logstash:
+  build: .
+  links:
+    - elasticsearch
+  command: /bin/bash
+  ports:
+    - "49122:22"
+  volumes:
+    - ../tests/:/tests
+kibana:
+  image: bobrik/kibana4
+  environment:
+    - KIBANA_ES_URL=http://elasticsearch:9200
+  links:
+    - elasticsearch
+  ports:
+    - "5601"
+elasticsearch:
+  image: elasticsearch
+  expose:
+    - "9200"
+    - "9300"
