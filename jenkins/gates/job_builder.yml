@@ -1,0 +1,30 @@
+- job:
+    name: job-builder-test
+    project-type: freestyle
+    description: |
+      Gate job which checks syntax of new or changed jobs.
+    display-name: 'Gate - Job builder Syntax test'
+    concurrent: true
+    node: docker-job-builder
+    scm:
+      - logstash-input-bugzilla
+    triggers:
+      - gerrit:
+          trigger-on:
+            - patchset-created-event
+          projects:
+            - project-compare-type: 'PLAIN'
+              project-pattern: 'abraverm/logstash-input-bugzilla'
+              branches:
+                - branch-compare-type: 'PLAIN'
+                  branch-pattern: 'ci'
+              file-paths:
+                - compare-type: 'ANT'
+                  pattern: jenkins/**
+          skip-vote:
+            unstable: true
+            notbuilt: true
+          trigger-for-unreviewed-patches: true
+    builders:
+      - shell: |
+          jenkins-jobs --ignore-cache test -r "${WORKSPACE}/logstash-input-bugzilla/jenkins"
