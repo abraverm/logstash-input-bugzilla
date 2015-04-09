@@ -1,0 +1,10 @@
+- scm:
+    name: logstash-input-bugzilla
+    scm:
+      - git:
+         url: https://review.gerrithub.io/abraverm/logstash-input-bugzilla
+         branches:
+          - origin/ci
+         refspec: $GERRIT_REFSPEC
+         choosing-strategy: 'gerrit'
+         basedir: "logstash-input-bugzilla_${BUILD_NUMBER}"

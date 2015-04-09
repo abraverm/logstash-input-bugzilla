@@ -1,0 +1,75 @@
+- job:
+    name: ruby-code-analysis
+    project-type: freestyle
+    description: |
+      Ruby gate job which checks syntax of new commits to master.
+      Using RuboCop for code analysis: https://github.com/bbatsov/rubocop
+    display-name: 'Gate - Ruby code analysis'
+    concurrent: true
+    node: docker-ruby-check
+    scm:
+      - logstash-input-bugzilla
+    triggers:
+      - gerrit:
+          trigger-on:
+            - patchset-created-event
+          projects:
+            - project-compare-type: 'PLAIN'
+              project-pattern: 'abraverm/logstash-input-bugzilla'
+              branches:
+                - branch-compare-type: 'PLAIN'
+                  branch-pattern: 'master'
+          skip-vote:
+            unstable: true
+            notbuilt: true
+          trigger-for-unreviewed-patches: true
+    publishers:
+      - html-publisher:
+          name: "RuboCop"
+          dir: "build/"
+          files: "rubocop.html"
+          keep-all: true
+          allow-missing: true
+    builders:
+      - shell: |
+          {
+            set +x
+            echo "====================="
+            echo "Checking Commit"
+            echo "====================="
+            echo "==== Trying merge to master ===="
+            pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}"
+            # store the checked-out refspec in a branch
+            git checkout -b thechange
+            # switch to branch
+            git checkout ci
+            # and merge or fail
+            if ! git merge --commit -m 'Merge the gated change' thechange; then
+              echo -e "\033[01;31m===> This change has to be rebased!\033[00m"
+              echo ""
+              exit 1
+            fi
+            echo " - merge to master OK"
+            echo "====================="
+            echo ""
+            echo "changes:"
+            if [ "$GERRIT_REFSPEC" != "refs/heads/ci" ]; then
+              git diff HEAD^..HEAD
+            fi
+            pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}"
+          } && {
+            echo "====================="
+            echo "Running Code Analysis"
+            echo "====================="
+
+            echo "---------------------"
+            echo "Ruby-lint for Logic  "
+            echo "---------------------"
+            ruby-lint ./ || exit_code=1
+
+            echo "---------------------"
+            echo "RuboCop for Semantics"
+            echo "---------------------"
+            rubocop --require rubocop-rspec --format html --out "${WORKSPACE}/build/rubocop.html" --rails --fail-level refactor || exit_code=1
+          }
+          exit $exit_code
