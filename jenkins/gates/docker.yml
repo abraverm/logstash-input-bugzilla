@@ -1,115 +1,169 @@
-- scm:
-    name: logstash-input-bugzilla
-    scm:
-      - git:
-         url: https://review.gerrithub.io/abraverm/logstash-input-bugzilla
-         branches:
-          - origin/ci
-         refspec: $GERRIT_REFSPEC
-         choosing-strategy: 'gerrit'
-         basedir: "logstash-input-bugzilla_${BUILD_NUMBER}"
+- job:
+      name: docker-images-deploy
+      project-type: flow
+      description: |
+        Gate job for building, testing and deploying Docker images.
+      display-name: 'Gate - Docker image deploy'
+      concurrent: false
+      triggers:
+        - gerrit:
+            trigger-on:
+                - patchset-created-event
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'abraverm/logstash-input-bugzilla'
+                  branches:
+                    - branch-compare-type: 'PLAIN'
+                      branch-pattern: 'ci'
+                  file-paths:
+                    - compare-type: 'ANT'
+                      pattern: '**/docker/**'
+            skip-vote:
+                unstable: true
+                notbuilt: true
+            trigger-for-unreviewed-patches: true
+      node: master
+      dsl: |
+        build("docker-build-node", gerrit_refspec: params["GERRIT_REFSPEC"])
+        parallel (
+          {
+            build("docker-build-elk-host", gerrit_refspec: params["GERRIT_REFSPEC"])
+            build("docker-test-elk", gerrit_refspec: params["GERRIT_REFSPEC"])
+          },
+          { build("docker-build-jjb", gerrit_refspec: params["GERRIT_REFSPEC"]) },
+          { build("docker-build-ruby", gerrit_refspec: params["GERRIT_REFSPEC"]) }
+        )
 
 - job:
-    name: docker-infrastructure-test
+    name: docker-build-node
     project-type: freestyle
     description: |
-      Gate job which tests the docker infrastructure
-    display-name: 'Gate - Docker Infrastructure Test'
+      Gate job which builds a new 'node'.
+      Node is a base image which jenkins can run its job on.
+    display-name: 'Gate - Docker build node image'
     concurrent: false
     node: docker
     scm:
       - logstash-input-bugzilla
-    triggers:
-      - gerrit:
-          trigger-on:
-            - patchset-created-event
-          projects:
-            - project-compare-type: 'PLAIN'
-              project-pattern: 'abraverm/logstash-input-bugzilla'
-              branches:
-                - branch-compare-type: 'PLAIN'
-                  branch-pattern: 'ci'
-              file-paths:
-                - compare-type: 'ANT'
-                  pattern: '**/docker/**'
-          skip-vote:
-            unstable: true
-            notbuilt: true
-          trigger-for-unreviewed-patches: true
     builders:
+      - shell:
+          !include-raw merge.sh
       - shell: |
-          # Step 1: Getting the commit
-          {
-            set +x
-            echo "====================="
-            echo "Checking Commit"
-            echo "====================="
-            echo "==== Trying merge to master ===="
-            pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}"
-            # store the checked-out refspec in a branch
-            git checkout -b thechange
-            # switch to branch
-            git checkout ci
-            # and merge or fail
-            if ! git merge --commit -m 'Merge the gated change' thechange; then
-              echo -e "\033[01;31m===> This change has to be rebased!\033[00m"
-              echo ""
-              exit 1
-            fi
-            echo " - merge to master OK"
-            echo "====================="
-            echo ""
-            echo "changes:"
-            if [ "$GERRIT_REFSPEC" != "refs/heads/ci" ]; then
-              git diff HEAD^..HEAD
-            fi
-            pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker"
-          } && {
-          # Step 2: Testing the environment
-            {
-              echo "====================="
-              echo "Starting Environment"
-              echo "====================="
-              docker-compose up -d
-              docker ps -a
-              docker images
-              pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker"
-            } && {
-              echo "====================="
-              echo "     Setting DNS"
-              echo "====================="
-              lid=$(docker-compose ps -q logstash)
-              lip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $lid)
-              eid=$(docker-compose ps -q elasticsearch)
-              eip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $eid)
-              kid=$(docker-compose ps -q kibana)
-              kip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $kid)
-
-              echo "address=\"/logstash/${lip}\"" >> /etc/dnsmasq.d/0hosts
-              echo "address=\"/elasticsearch/${eip}\"" >> /etc/dnsmasq.d/0hosts
-              echo "address=\"/kibana/${kip}\"" >> /etc/dnsmasq.d/0hosts
-
-              cat /etc/dnsmasq.d/0hosts
-              dnsmasq -D
-            } && {
-              echo "====================="
-              echo "Testing on Logstash"
-              echo "====================="
-              sshpass -p123456 ssh -o StrictHostKeyChecking=no root@logstash /bin/bash << ENDSSH
-          export JAVACMD="/bin/java";
           set -x
-          /opt/logstash/bin/logstash-test /opt/logstash/spec/outputs/elasticsearch.rb || echo "Failed to start test"
-          ENDSSH
-              set +x
-            }
-          # Step 3: Removin the environment
-            echo "====================="
-            echo "Removing Environment"
-            echo "====================="
-            pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker"
-            docker-compose stop
+          pushd "${WORKSPACE}/logstash-input-bugzilla_${BUILD_NUMBER}/docker/node"
+          if [ $(git diff --stat "HEAD^" -- . | wc -l) -gt 0 ]; then
+            echo "============================"
+            echo "Docker - Building Node Image"
+            echo "============================"
+            docker build -t abraverm/jenkins:node .
+          else
+            echo "Nothing changed"
+          fi
 
-            docker-compose rm --force
+- job:
+    name: docker-build-elk-host
+    project-type: freestyle
+    description: |
+      Gate job which builds a new 'elk-host'.
+      ELK host is a docker image with docker and other tool enabled for
+      running docker inside docker.
+    display-name: 'Gate - Docker build ELK-host image'
+    concurrent: false
+    node: docker
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw merge.sh
+      - shell: |
+          set -x
+          pushd "${WORKSPACE}/logstash-input-bugzilla_${BUILD_NUMBER}/docker/ELK-host"
+          if [ $(git diff --stat "HEAD^" -- . | wc -l) -gt 0 ] ||
+             [ $(git diff --stat "HEAD^" -- ../node/ | wc -l) -gt 0 ]
+          then
+            echo "============================"
+            echo "Docker - Building ELK-host Image"
+            echo "============================"
+            docker build -t abraverm/jenkins:docker .
+          else
+            echo "Nothing changed"
+          fi
 
-            docker rmi logstashinputbugzilla${BUILD_NUMBER}_logstash || echo "No docker-compose image found to remove"
-          }
+- job:
+    name: docker-test-elk
+    project-type: freestyle
+    description: |
+      Gate job which tests the Docker ELK suite environment.
+    display-name: 'Gate - Docker ELK Test'
+    concurrent: false
+    node: docker
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw merge.sh
+      - shell: |
+          set -x
+          if [ $(git diff --stat "HEAD^" -- . | wc -l) -gt 0 ] ||
+             [ $(git diff --stat "HEAD^" -- ../node/ | wc -l) -gt 0 ] ||
+             [ $(git diff --stat "HEAD^" -- "../ELK-host/" | wc -l) -gt 0 ]
+          then
+            !include-raw ELK.sh
+          fi
+
+- job:
+    name: docker-build-ruby
+    project-type: freestyle
+    description: |
+      Gate job which builds a new ruby node.
+      Ruby node is an image for running code analysis on ruby code.
+    display-name: 'Gate - Docker build ruby node image'
+    concurrent: false
+    node: docker
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw merge.sh
+      - shell: |
+          set -x
+          pushd "${WORKSPACE}/logstash-input-bugzilla_${BUILD_NUMBER}/docker/ruby"
+          if [ $(git diff --stat "HEAD^" -- . | wc -l) -gt 0 ] ||
+             [ $(git diff --stat "HEAD^" -- ../node/ | wc -l) -gt 0 ]
+          then
+            echo "================================="
+            echo "Docker - Building Ruby Node Image"
+            echo "================================="
+            docker build -t abraverm/jenkins:ruby .
+          else
+            echo "Nothing changed"
+          fi
+
+- job:
+    name: docker-build-jjb
+    project-type: freestyle
+    description: |
+      Gate job which builds a new Jenkins-Job-Builder node.
+      Jenkins-Job-Builder is an image for testing jenkins jobs defenition.
+    display-name: 'Gate - Docker build JJB node image'
+    concurrent: false
+    node: docker
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw merge.sh
+      - shell: |
+          set -x
+          pushd "${WORKSPACE}/logstash-input-bugzilla_${BUILD_NUMBER}/docker/jjb"
+          if [ $(git diff-index --name-only HEAD | wc -l) -gt 0 ] ||
+             [ $(git diff --stat "HEAD^" -- ../node/ | wc -l) -gt 0 ]
+          then
+            echo "============================"
+            echo "Docker - Building JJB Node Image"
+            echo "============================"
+            docker build -t abraverm/jenkins:jjb .
+          else
+            echo "Nothing changed"
+          fi
+
