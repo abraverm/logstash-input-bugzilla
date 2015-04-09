@@ -3,7 +3,7 @@ logstash:
   links:
     - elasticsearch
   command: /bin/bash
-  ports:
+  expose:
     - "22"
   volumes:
     - ../tests/:/tests
@@ -13,7 +13,7 @@ kibana:
     - KIBANA_ES_URL=http://elasticsearch:9200
   links:
     - elasticsearch
-  ports:
+  expose:
     - "5601"
 elasticsearch:
   image: elasticsearch
