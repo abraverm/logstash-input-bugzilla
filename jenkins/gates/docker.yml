@@ -1,0 +1,119 @@
+- scm:
+    name: logstash-input-bugzilla
+    scm:
+      - git:
+         url: https://review.gerrithub.io/abraverm/logstash-input-bugzilla
+         branches:
+          - origin/ci
+         refspec: $GERRIT_REFSPEC
+         choosing-strategy: 'gerrit'
+         basedir: "logstash-input-bugzilla_${BUILD_NUMBER}"
+
+- job:
+    name: docker-infrastructure-test
+    project-type: freestyle
+    description: |
+      Gate job which tests the docker infrastructure
+    display-name: 'Gate - Docker Infrastructure Test'
+    concurrent: false
+    node: docker
+    scm:
+      - logstash-input-bugzilla
+    triggers:
+      - gerrit:
+          trigger-on:
+            - patchset-created-event
+          projects:
+            - project-compare-type: 'PLAIN'
+              project-pattern: 'abraverm/logstash-input-bugzilla'
+              branches:
+                - branch-compare-type: 'PLAIN'
+                  branch-pattern: 'ci'
+              file-paths:
+                - compare-type: 'ANT'
+                  pattern: docker/**
+          skip-vote:
+            unstable: true
+            notbuilt: true
+          trigger-for-unreviewed-patches: true
+    builders:
+      - shell: |
+          # Step 1: Getting the commit
+          {
+            set +x
+            echo "====================="
+            echo "Checking Commit"
+            echo "====================="
+            echo "==== Trying merge to master ===="
+            pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}"
+            # store the checked-out refspec in a branch
+            git checkout -b thechange
+            # switch to branch
+            git checkout ci
+            # and merge or fail
+            if ! git merge --commit -m 'Merge the gated change' thechange; then
+              echo -e "\033[01;31m===> This change has to be rebased!\033[00m"
+              echo ""
+              exit 1
+            fi
+            echo " - merge to master OK"
+            echo "====================="
+            echo ""
+            echo "changes:"
+            if [ "$GERRIT_REFSPEC" != "refs/heads/ci" ]; then
+              git diff HEAD^..HEAD
+            fi
+            pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker"
+          } && {
+          # Step 2: Testing the environment
+            {
+              echo "====================="
+              echo "Starting Environment"
+              echo "====================="
+              docker-compose up -d
+              pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker"
+            } && {
+              echo "====================="
+              echo "     Setting DNS"
+              echo "====================="
+              lid=$(docker-compose ps -q logstash)
+              lip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $lid)
+              eid=$(docker-compose ps -q elasticsearch)
+              eip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $eid)
+              kid=$(docker-compose ps -q kibana)
+              kip=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $kid)
+
+              echo "address=\"/logstash/${lip}\"" >> /etc/dnsmasq.d/0hosts
+              echo "address=\"/elasticsearch/${eip}\"" >> /etc/dnsmasq.d/0hosts
+              echo "address=\"/kibana/${kip}\"" >> /etc/dnsmasq.d/0hosts
+
+              dnsmasq -D
+            } && {
+              echo "====================="
+              echo "Testing on Logstash"
+              echo "====================="
+              sshpass -p123456 ssh -o StrictHostKeyChecking=no root@logstash /bin/bash << ENDSSH
+          export JAVACMD="/bin/java";
+          set -x
+          /opt/logstash/bin/logstash-test /opt/logstash/spec/outputs/elasticsearch.rb
+          ENDSSH
+              set +x
+            } && {
+              echo "====================="
+              echo "Updating Image"
+              echo "====================="
+              set -x
+              docker tag -f logstashinputbugzilla${BUILD_NUMBER}_logstash abraverm/logstash
+              set +x
+            }
+          # Step 3: Removin the environment
+            echo "====================="
+            echo "Removing Environment"
+            echo "====================="
+            pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker"
+            docker-compose stop
+
+            docker-compose rm --force
+
+            docker rmi logstashinputbugzilla${BUILD_NUMBER}_logstash
+          }
