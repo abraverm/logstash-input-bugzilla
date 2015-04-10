@@ -1,6 +1,6 @@
 FROM fedora
-RUN rpm --rebuilddb
-RUN (yum install -y -q wget || yum install -y java-1.8.0-openjdk openssh-server openssh-client git)
+RUN rpm --rebuilddb && \
+yum install -y java-1.8.0-openjdk openssh-server openssh-client git
 # configure ssh
 RUN mkdir /root/.ssh
 RUN chmod 700 /root/.ssh
