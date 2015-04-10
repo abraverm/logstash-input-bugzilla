@@ -61,15 +61,15 @@
             echo "====================="
             echo "Running Code Analysis"
             echo "====================="
-
+            export PATH=$PATH:/usr/local/rvm/bin/
             echo "---------------------"
             echo "Ruby-lint for Logic  "
             echo "---------------------"
-            ruby-lint ./ || exit_code=1
+            rvm jruby do jrlint || exit_code=1
 
             echo "---------------------"
             echo "RuboCop for Semantics"
             echo "---------------------"
-            rubocop --require rubocop-rspec --format html --out "${WORKSPACE}/build/rubocop.html" --rails --fail-level refactor || exit_code=1
+            rvm jruby do rubocop --display-cop-names --format html --out "${WORKSPACE}/build/rubocop.html" --rails --fail-level refactor || exit_code=1
           }
           exit $exit_code
