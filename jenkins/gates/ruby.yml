@@ -65,7 +65,8 @@
             echo "---------------------"
             echo "Ruby-lint for Logic  "
             echo "---------------------"
-            ruby-lint ./ || exit_code=1
+            rvm jruby --default
+            jrlint || exit_code=1
 
             echo "---------------------"
             echo "RuboCop for Semantics"

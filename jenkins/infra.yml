@@ -200,4 +200,4 @@
     builders:
       - shell: |
           set -x
-          docker rmi "jjb_${deploy}" "ruby_${deploy}" "host_${deploy}" "node_${deploy}"
+          docker rmi "jjb_${deploy}" "ruby_${deploy}" "host_${deploy}" "node_${deploy}" || echo "Some images were not found"
