@@ -1,0 +1,18 @@
+- job:
+    name: compatibility
+    project-type: freestyle
+    description: |
+      <h1>TO-DO</h1>
+      <p>
+      This is  an integration test, part of Tier 1 test set.<br>
+      It will test the plugin against different versions of relied libraries
+      and systems. It will never fail but will give a report with compatibility
+      table and status if there was a regression.
+      </p>
+    display-name: 'Compatibility'
+    concurrent: true
+    node: docker-compatibility
+    disabled: true
+    builders:
+      - shell:
+          !include-raw ../scripts/merge.sh

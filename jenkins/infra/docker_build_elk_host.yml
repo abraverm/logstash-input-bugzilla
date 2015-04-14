@@ -1,0 +1,28 @@
+- job:
+    name: docker-build-elk-host
+    project-type: freestyle
+    description: |
+      ELK host is a docker image with docker and other tool enabled for
+      running docker inside docker.
+    display-name: 'Docker build ELK-host image'
+    concurrent: false
+    node: docker
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw ../scripts/merge.sh
+      - shell: |
+          set +x
+          pushd "${WORKSPACE}/logstash-input-bugzilla_${BUILD_NUMBER}/docker/ELK-host"
+          if [ $(git diff --stat "HEAD^" -- . | wc -l) -gt 0 ] ||
+             [ $(git diff --stat "HEAD^" -- ../node/ | wc -l) -gt 0 ]
+          then
+            echo "============================"
+            echo "Docker - Building ELK-host Image"
+            echo "============================"
+            docker build -t "host_test" .
+          else
+            docker tag -f abraverm/jenkins:docker host_test
+            echo "Nothing changed"
+          fi

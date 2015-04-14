@@ -6,7 +6,7 @@ logstash:
   expose:
     - "22"
   volumes:
-    - ../tests/:/tests
+    - /tests/:/tests
 kibana:
   image: bobrik/kibana4
   environment:
