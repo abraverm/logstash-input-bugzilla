@@ -1,0 +1,50 @@
+- job:
+    name: plugin-install
+    project-type: freestyle
+    description: |
+      This is an integration test, part of Tier 1 test set.<br>
+      It will install the plugin on Logstash. Major versions of Logstash have
+      diffrent methods for installing a plugin.
+    display-name: 'Plugin install test'
+    concurrent: true
+    node: docker-logstash
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw ../scripts/merge.sh
+      - shell: |
+          echo "====================="
+          echo "Building a Gem file  "
+          echo "====================="
+          rvm jruby do gem build logstash-input-bugzilla.gemspec
+          cp *.gem /
+          echo "====================="
+          echo "Installing the plugin"
+          echo "====================="
+          echo "----------------------------------------------------"
+          echo "Stable (1.4) Packaged (NOT source code) Logstash"
+          echi "----------------------------------------------------"
+          pushd /opt/logstash
+          # Installing the plugin using gem will make it download dependecies
+          # declared in gemspec file but it will also ignore Gemfile.
+          # Meaning jruby will try to install ruby-bugzilla from rubygems.com
+          # and endup failing. So we first install ruby-bugzilla from the fork.
+          #
+          # specific_install - A Rubygem plugin that allows you to install an
+          # "edge" gem straight from its github repository, or install one
+          # from an arbitrary url web
+          GEM_HOME="$(pwd)/vendor/bundle/jruby/1.9"
+          GEM_PATH=
+          JRUBY_JAR="$(pwd)/vendor/jar/jruby-complete-1.7.11.jar"
+          RUBY_BUGZILLA_URL='https://alexbmasis@bitbucket.org/alexbmasis/ruby-bugzilla.git'
+          java -jar $JRUBY_JAR -S gem install specific_install
+          java -jar $JRUBY_JAR -S gem specific_install -l $RUBY_BUGZILLA_URL
+          # Installing the plugin
+          java -jar $JRUBY_JAR -S gem install "/logstash-input-bugzilla-*.gem"
+          cp -R vendor/bundle/jruby/1.9/gems/logstash-input-bugzilla*/lib/logstash/* lib/logstash/
+          echo "-----------------------"
+          echo "Testing Plugin on 1.4.2"
+          echo "-----------------------"
+          timeout 30 bin/logstash -e 'input { bugzilla {} } output {stdout { } }'
+          exit 0
