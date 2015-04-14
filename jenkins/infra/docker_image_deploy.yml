@@ -1,0 +1,17 @@
+- job:
+    name: docker-image-deploy
+    project-type: freestyle
+    description: |
+      Deploy built docker images.
+    display-name: 'Docker image deploy'
+    concurrent: false
+    node: docker
+    builders:
+      - shell: |
+          set -x
+          docker images
+          docker tag -f jjb_test abraverm/jenkins:jjb || echo "JJB image wasn't changed"
+          docker tag -f ruby_test abraverm/jenkins:ruby || echo "Ruby image wasn't changed"
+          docker tag -f node_test abraverm/jenkins:node || echo "Base node image wasn't changed"
+          docker tag -f host_test abraverm/jenkins:docker || echo "ELK host image wasn't changed"
+          docker tag -f logstash_test abraverm/jenkins:logstash || echo "Logstash image wasn't changed"

@@ -1,0 +1,25 @@
+- job:
+    name: plugin-install
+    project-type: freestyle
+    description: |
+      This is an integration test, part of Tier 1 test set.<br>
+      It will install the plugin on Logstash. Major versions of Logstash have
+      diffrent methods for installing a plugin.
+    display-name: 'Plugin install test'
+    concurrent: true
+    node: docker-logstash
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw ../scripts/merge.sh
+      - shell:
+          !include-raw ../scripts/plugin_build.sh
+      - shell: |
+          set +x
+          echo "====================="
+          echo "Installing the plugin"
+          echo "====================="
+      - shell:
+          !include-raw ../scripts/plugin_install_1.4.2_packaged.sh
+
