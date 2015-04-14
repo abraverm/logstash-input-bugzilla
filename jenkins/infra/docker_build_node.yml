@@ -1,0 +1,24 @@
+- job:
+    name: docker-build-node
+    project-type: freestyle
+    description: |
+      Node is a base image which jenkins can run its job on.
+    display-name: 'Docker build node image'
+    concurrent: false
+    node: docker
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw ../scripts/merge.sh
+      - shell: |
+          set +x
+          pushd "${WORKSPACE}/logstash-input-bugzilla_${BUILD_NUMBER}/docker/node"
+          if [ $(git diff --stat "HEAD^" -- . | wc -l) -gt 0 ]; then
+            echo "============================"
+            echo "Docker - Building Node Image"
+            echo "============================"
+            docker build -t "node_${deploy}" .
+          else
+            echo "Nothing changed"
+          fi
