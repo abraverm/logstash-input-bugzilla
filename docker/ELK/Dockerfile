@@ -1,8 +1,16 @@
-FROM abraverm/jenkins:node
+FROM node_test
 MAINTAINER Alexander Braverman Masis <alexbmasis@gmail.com>
-ENV LOGSTASH logstash-1.4.2
+ENV LOGSTASH v1.4.2
+ENV JRUBY jruby-1.7.11
 
-WORKDIR /opt/
-RUN curl -O https://download.elasticsearch.org/logstash/logstash/$LOGSTASH.tar.gz && \
-        tar -xzf $LOGSTASH.tar.gz && rm -rf $LOGSTASH.tar.gz && mv $LOGSTASH logstash
-WORKDIR /opt/logstash
+RUN rpm --rebuilddb && yum install -y gcc gnupg which tar make patch
+RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+RUN curl -sSL https://get.rvm.io | bash -s stable --ruby=$JRUBY
+ENV PATH $PATH:/usr/local/rvm/bin/
+RUN rvm alias create jruby $JRUBY
+RUN rvm jruby do gem install rubocop jruby-lint bundler
+
+RUN cd /opt/ && \
+git clone -b $LOGSTASH --depth 1 https://github.com/elastic/logstash.git && \
+cd logstash && git checkout -b $LOGSTASH
+RUN cd /opt/logstash && rvm jruby do bundle install --gemfile=tools/Gemfile --path logstash.gemspec

@@ -3,8 +3,8 @@
     scm:
       - git:
          url: https://review.gerrithub.io/abraverm/logstash-input-bugzilla
-         branches:
-          - origin/ci
          refspec: $GERRIT_REFSPEC
+         branches:
+            - $GERRIT_BRANCH
          choosing-strategy: 'gerrit'
          basedir: "logstash-input-bugzilla_${BUILD_NUMBER}"
