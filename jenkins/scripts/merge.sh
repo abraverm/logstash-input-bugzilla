@@ -18,7 +18,5 @@
  echo "====================="
  echo ""
  echo "changes:"
- if [ "$GERRIT_REFSPEC" != "refs/heads/ci" ]; then
-   git diff HEAD^..HEAD
- fi
+ git diff HEAD^..HEAD
  exit 0

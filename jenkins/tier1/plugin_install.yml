@@ -1,0 +1,29 @@
+- job:
+    name: plugin-install
+    project-type: freestyle
+    description: |
+      This is an integration test, part of Tier 1 test set.<br>
+      It will install the plugin on Logstash. Logstash has different methods
+      for installing a plugin:
+      <ul>
+        <li>script</li>
+        <li>Gem</li>
+      </ul>
+    display-name: 'Plugin install test'
+    concurrent: true
+    node: docker-logstash
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw ../scripts/merge.sh
+      - shell: |
+          echo "====================="
+          echo "Installing the plugin"
+          echo "====================="
+          echo "---------------------"
+          echo "   using Gemfile     "
+          echo "---------------------"
+          echo "---------------------"
+          echo "   using Script      "
+          echo "---------------------"

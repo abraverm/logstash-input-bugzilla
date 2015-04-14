@@ -1,0 +1,14 @@
+- job:
+    name: docker-image-cleanup
+    project-type: freestyle
+    description: |
+      Cleanup leftovers of image deployment.
+    display-name: 'Docker image cleanup'
+    concurrent: false
+    node: docker
+    builders:
+      - shell: |
+          set -x
+          docker rmi jjb_test ruby_test host_test node_test elk_logstash || echo "Some images were not found"
+          docker ps -a --no-trunc| grep 'Exit' | awk '{print $1}' | xargs -L 1 -r docker rm
+          docker images -a --no-trunc | grep none | awk '{print $3}' | xargs -L 1 -r docker rmi
