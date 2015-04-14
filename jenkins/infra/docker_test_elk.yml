@@ -1,0 +1,15 @@
+- job:
+    name: docker-test-elk
+    project-type: freestyle
+    description: |
+      Sanity test for ELK suite environment.
+    display-name: 'Docker ELK Test'
+    concurrent: false
+    node: docker
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw ../scripts/merge.sh
+      - shell:
+          !include-raw ../scripts/ELK_image_test.sh

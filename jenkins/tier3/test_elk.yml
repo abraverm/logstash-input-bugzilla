@@ -1,0 +1,20 @@
+- job:
+    name: test-elk
+    project-type: freestyle
+    description: |
+      <h1>TO-DO</h1>
+      <p>
+      This is an system integration test, part of Tier 3 test set.<br>
+      System integration testing (SIT) is a testing process that exercises a
+      software systems coexistence with others.<br>
+      http://en.wikipedia.org/wiki/System_integration_testing
+      <br>
+      It will run a full ELK environment with the plugin.
+      </p>
+    display-name: 'ELK System integration'
+    concurrent: true
+    node: docker
+    disabled: true
+    builders:
+      - shell:
+          !include-raw ../scripts/merge.sh
