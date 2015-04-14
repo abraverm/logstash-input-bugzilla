@@ -1,0 +1,26 @@
+- job:
+    name: docker-build-ruby
+    project-type: freestyle
+    description: |
+      Ruby node is an image for running code analysis on ruby code.
+    display-name: 'Docker build ruby node image'
+    concurrent: false
+    node: docker
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw ../scripts/merge.sh
+      - shell: |
+          set +x
+          pushd "${WORKSPACE}/logstash-input-bugzilla_${BUILD_NUMBER}/docker/ruby"
+          if [ $(git diff --stat "HEAD^" -- . | wc -l) -gt 0 ] ||
+             [ $(git diff --stat "HEAD^" -- ../node/ | wc -l) -gt 0 ]
+          then
+            echo "================================="
+            echo "Docker - Building Ruby Node Image"
+            echo "================================="
+            docker build -t "ruby_${deploy}" .
+          else
+            echo "Nothing changed"
+          fi
