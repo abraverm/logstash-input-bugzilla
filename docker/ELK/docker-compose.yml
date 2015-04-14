@@ -1,12 +1,12 @@
 logstash:
-  build: .
+  image: logstash_test
   links:
     - elasticsearch
   command: /bin/bash
   expose:
     - "22"
   volumes:
-    - ../tests/:/tests
+    - /tests/:/tests
 kibana:
   image: bobrik/kibana4
   environment:

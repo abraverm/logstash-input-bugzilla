@@ -1,10 +1,11 @@
 #!/bin/bash
 set +x
+pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}"
 if [ $(git diff --stat "HEAD^" -- . | wc -l) -gt 0 ] ||
-   [ $(git diff --stat "HEAD^" -- ../node/ | wc -l) -gt 0 ] ||
-   [ $(git diff --stat "HEAD^" -- "../ELK-host/" | wc -l) -gt 0 ]
+   [ $(git diff --stat "HEAD^" -- docker/node/ | wc -l) -gt 0 ] ||
+   [ $(git diff --stat "HEAD^" -- docker/logstash/ | wc -l) -gt 0 ]
 then
-  pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker"
+  pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker/ELK"
   # Step 1: Testing the environment
   {
     echo "====================="
@@ -13,7 +14,7 @@ then
     docker-compose up -d
     docker ps -a
     docker images
-    pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker"
+    pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker/ELK"
   } && {
     echo "====================="
     echo "     Setting DNS"
@@ -36,9 +37,10 @@ then
     echo "Testing on Logstash"
     echo "====================="
     sshpass -p123456 ssh -o StrictHostKeyChecking=no root@logstash /bin/bash << ENDSSH
-export JAVACMD="/bin/java";
+export JAVACMD="/bin/java"
+export PATH=$PATH:/usr/local/rvm/bin/
 set -x
-/opt/logstash/bin/logstash-test /opt/logstash/spec/outputs/elasticsearch.rb || echo "Failed to start test"
+timeout 120 /opt/logstashbin/logstash -e 'input { generator { count => 1} } output { elasticsearch { host => elasticsearch } stdout {codec => rubydebug} }'
 ENDSSH
     set +x
   }
@@ -46,11 +48,11 @@ ENDSSH
   echo "====================="
   echo "Removing Environment"
   echo "====================="
-  pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker"
+  pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}/docker/ELK"
   docker-compose stop
 
   docker-compose rm --force
 
-  docker rmi logstashinputbugzilla${BUILD_NUMBER}_logstash || echo "No docker-compose image found to remove"
+  docker rmi "logstashinputbugzilla${BUILD_NUMBER}_logstash" || echo "No docker-compose image found to remove"
 fi
 exit 0

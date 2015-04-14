@@ -1,0 +1,27 @@
+- job:
+    name: docker-build-logstash
+    project-type: freestyle
+    description: |
+      Base images of Logstash with stable installation and ruby environment for
+      development version.
+    display-name: 'Docker build Logstash'
+    concurrent: false
+    node: docker
+    scm:
+      - logstash-input-bugzilla
+    builders:
+      - shell:
+          !include-raw ../scripts/merge.sh
+      - shell: |
+          set +x
+          pushd "${WORKSPACE}/logstash-input-bugzilla_${BUILD_NUMBER}/docker/logstash"
+          if [ $(git diff-index --name-only HEAD | wc -l) -gt 0 ] ||
+             [ $(git diff --stat "HEAD^" -- ../node/ | wc -l) -gt 0 ]
+          then
+            echo "================================"
+            echo "Docker - Building Logstash Image"
+            echo "================================"
+            docker build -t "logstash_test" .
+          else
+            echo "Nothing changed"
+          fi
