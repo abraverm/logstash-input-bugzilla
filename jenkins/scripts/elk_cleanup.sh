@@ -5,3 +5,4 @@ echo "Removing Environment"
 echo "====================="
 docker-compose stop
 docker-compose rm --force
+docker rmi logstash_test

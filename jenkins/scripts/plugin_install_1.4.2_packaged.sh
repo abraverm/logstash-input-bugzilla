@@ -25,4 +25,4 @@ cp -R vendor/bundle/jruby/1.9/gems/logstash-input-bugzilla*/lib/logstash/* lib/l
 echo "-----------------------"
 echo "Testing Plugin on 1.4.2"
 echo "-----------------------"
-timeout 30 bin/logstash -e 'input { bugzilla {} } output {stdout { } }' || exit 0
+timeout 60 bin/logstash -e 'input { bugzilla {} } output {stdout { } }' || exit 0
