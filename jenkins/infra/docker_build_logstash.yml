@@ -15,7 +15,7 @@
       - shell: |
           set +x
           pushd "${WORKSPACE}/logstash-input-bugzilla_${BUILD_NUMBER}/docker/logstash"
-          if [ $(git diff-index --name-only HEAD | wc -l) -gt 0 ] ||
+          if [ $(git diff-index --name-only "HEAD^" | wc -l) -gt 0 ] ||
              [ $(git diff --stat "HEAD^" -- ../node/ | wc -l) -gt 0 ]
           then
             echo "================================"

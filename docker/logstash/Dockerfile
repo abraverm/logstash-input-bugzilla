@@ -21,3 +21,9 @@ RUN rm -rf /opt/logstash
 # Install stable Logstash
 RUN curl -O https://download.elasticsearch.org/logstash/logstash/logstash-$STABLE_LOG.tar.gz
 RUN tar zxvf logstash-$STABLE_LOG.tar.gz && mv logstash-$STABLE_LOG logstash
+
+# Install Web2PDF for Kibana debuging
+RUN rpm --rebuilddb && yum install -y libpng15 wget
+RUN wget http://downloads.sourceforge.net/wkhtmltopdf/wkhtmltox-0.12.2.1_linux-centos7-amd64.rpm
+RUN rpm --rebuilddb && yum install -y wkhtmltox-0.12.2.1_linux-centos7-amd64.rpm
+RUN rm -rf wkhtmltox*

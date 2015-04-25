@@ -5,8 +5,6 @@ logstash:
   command: /bin/bash
   expose:
     - "22"
-  volumes:
-    - /tests/:/tests
 kibana:
   image: bobrik/kibana4
   environment:
@@ -16,7 +14,7 @@ kibana:
   expose:
     - "5601"
 elasticsearch:
-  image: elasticsearch
+  image: elasticsearch:1.5.1
   expose:
     - "9200"
     - "9300"
