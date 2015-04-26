@@ -14,6 +14,11 @@
     display-name: 'ELK System integration'
     concurrent: true
     node: docker
+    parameters:
+      - string:
+          GERRIT_REFSPEC
+      - string:
+          GERRIT_BRANCH
     scm:
       - logstash-input-bugzilla
       - logstash-input-bugzilla-ci
@@ -24,10 +29,18 @@
           !include-raw ../scripts/elk_start.sh
       - shell:
           !include-raw ../scripts/elk_setup_dns.sh
+      - python:
+          !include-raw ../scripts/kibana_init.py
       - shell:
           !include-raw ../scripts/elk_test.sh
+      - python:
+          !include-raw ../scripts/kibana_discover.py
     publishers:
       - postbuildscript:
           builders:
             - shell:
                 !include-raw ../scripts/elk_cleanup.sh
+      - archive:
+          artifacts: '*.png'
+          allow-empty: 'true'
+          fingerprint: true
