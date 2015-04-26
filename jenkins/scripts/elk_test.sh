@@ -42,4 +42,3 @@ echo "------------------------------------------"
 echo "Quering Elasticsearch for the test results"
 echo "------------------------------------------"
 curl 'http://elasticsearch:9200/_search?pretty'
-

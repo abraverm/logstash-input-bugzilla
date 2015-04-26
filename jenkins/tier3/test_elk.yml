@@ -24,10 +24,18 @@
           !include-raw ../scripts/elk_start.sh
       - shell:
           !include-raw ../scripts/elk_setup_dns.sh
+      - python:
+          !include-raw ../scripts/kibana_init.py
       - shell:
           !include-raw ../scripts/elk_test.sh
+      - python:
+          !include-raw ../scripts/kibana_discover.py
     publishers:
       - postbuildscript:
           builders:
             - shell:
                 !include-raw ../scripts/elk_cleanup.sh
+      - archive:
+          artifacts: '*.pdf'
+          allow-empty: 'true'
+          fingerprint: true
