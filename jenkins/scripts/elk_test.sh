@@ -1,4 +1,5 @@
 #!/bin/bash
+set +x
 echo "====================="
 echo "Testing on Logstash"
 echo "====================="
@@ -6,7 +7,7 @@ sshpass -p123456 scp -o StrictHostKeyChecking=no -r "$WORKSPACE/logstash-input-b
 sshpass -p123456 ssh -o StrictHostKeyChecking=no root@logstash /bin/bash << ENDSSH
 export JAVACMD="/bin/java"
 export PATH=$PATH:/usr/local/rvm/bin/
-set -x
+set +x
 echo "-------------------"
 echo "Building Plugin Gem"
 echo "-------------------"
@@ -26,6 +27,7 @@ java -jar /opt/logstash/vendor/jar/jruby-complete-1.7.11.jar -S gem specific_ins
 ENDSSH
 
 sshpass -p123456 ssh -o StrictHostKeyChecking=no root@logstash /bin/bash << ENDSSH
+set +x
 echo "----------------------------------"
 echo "Installing Plugin and running test"
 echo "----------------------------------"
@@ -42,4 +44,3 @@ echo "------------------------------------------"
 echo "Quering Elasticsearch for the test results"
 echo "------------------------------------------"
 curl 'http://elasticsearch:9200/_search?pretty'
-

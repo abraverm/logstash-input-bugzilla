@@ -1,4 +1,5 @@
 #!/bin/bash
+set +x
 export PATH=$PATH:/usr/local/rvm/bin/
 pushd "$WORKSPACE/logstash-input-bugzilla_${BUILD_NUMBER}"
 echo "====================="
