@@ -6,12 +6,12 @@ logstash:
   expose:
     - "22"
 kibana:
-  image: bobrik/kibana4
+  image: bobrik/kibana
   environment:
     - KIBANA_ES_URL=http://elasticsearch:9200
   links:
     - elasticsearch
-  expose:
+  ports:
     - "5601"
 elasticsearch:
   image: elasticsearch:1.5.1
