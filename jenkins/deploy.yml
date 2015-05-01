@@ -1,18 +1,18 @@
 - job:
     name: continues-deployment
     display-name: Continues Deployment
-    project-type: flow
+    project-type: freestyle
     description: |
       Apply submitted patches and start POC deployment.
-    concurrent: true
+    concurrent: false
     scm:
       - logstash-input-bugzilla
       - logstash-input-bugzilla-ci
     triggers:
       - gerrit:
           trigger-on:
-            - change-merged-event
-            - change-restored-event
+              - change-merged-event
+              - change-restored-event
           projects:
               - project-compare-type: 'PLAIN'
                 project-pattern: 'abraverm/logstash-input-bugzilla'
@@ -21,12 +21,12 @@
                     branch-pattern: 'master'
     node: docker
     parameters:
-       - string:
-          name: GERRIT_REFSPEC
-          default: refs/heads/master
-       - string:
-          name: GERRIT_BRANCH
-          default: origin/master
+        - string:
+            name: GERRIT_REFSPEC
+            default: refs/heads/master
+        - string:
+            name: GERRIT_BRANCH
+            default: origin/master
     builders:
       - shell:
           !include-raw scripts/deploy.sh
