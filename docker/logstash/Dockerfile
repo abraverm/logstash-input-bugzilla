@@ -5,7 +5,7 @@ ENV JRUBY 1.7.17
 ENV STABLE_LOG 1.4.2
 
 # Prepare jruby
-RUN rpm --rebuilddb && yum install -y gcc gnupg which tar make patch
+RUN rpm --rebuilddb && yum install -y gcc gnupg which tar make patch m4
 RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import -
 RUN curl -sSL https://get.rvm.io | bash -s stable --ruby=$JRUBY
 ENV PATH $PATH:/usr/local/rvm/bin/
