@@ -9,7 +9,7 @@ docker-compose rm --force
 echo "========================"
 echo "Creating Configurations"
 echo "========================"
-m4 -DES_HOST="$ES_HOST" -DES_PORT="$ES_PORT" -DES_USER="$ES_USER" -DES_PASSWORD="$ES_PASSWORD" logstash.conf.m4 > logstash.conf
+m4 -DES_HOST="$ES_HOST" -DES_PORT="$ES_PORT" -DES_USER="$ES_USER" -DES_PASSWORD="$ES_PASSWORD" -DBZ_HOST="$BZ_HOST" -DBZ_PRODUCT="$BZ_PRODUCT" logstash.conf.m4 > logstash.conf
 echo "========================"
 echo "Starting new Deployment"
 echo "========================"
