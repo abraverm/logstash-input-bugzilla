@@ -1,8 +1,8 @@
 input {
   bugzilla {
     search_params => {
-      host => BZ_HOST
-      product => BZ_PRODUCT
+      host => "BZ_HOST"
+      product => "BZ_PRODUCT"
     }
   }
 }
