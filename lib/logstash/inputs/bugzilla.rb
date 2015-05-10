@@ -140,8 +140,9 @@ class LogStash::Inputs::Bugzilla < LogStash::Inputs::Base
   private
 
   def add_event(queue, bug, time_filter)
+    fix_date(bug)
     event = LogStash::Event.new(
-      '@timestamp' => bug[time_filter].to_time,
+      '@timestamp' => bug[time_filter],
       'host' => @host,
       'message' => bug)
     @logger.debug("Addind event: #{event}")
@@ -153,5 +154,12 @@ class LogStash::Inputs::Bugzilla < LogStash::Inputs::Base
 
   def get_bug(search)
     @bugzilla.search(search)['bugs'].first
+  end
+
+  def fix_date(bug) # TODO: find fields (not hard coded)
+    date_fields = %w(cf_last_closed creation_time last_change_time)
+    date_fields.each do |field|
+      bug.key?(field) && bug[field] = bug.field.to_time
+    end
   end
 end # class LogStash::Inputs::Bugzilla
