@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 
+
 def main():
     print "==================="
     print "Initializing Kibana"
@@ -31,7 +32,6 @@ def main():
         driver.save_screenshot('kibana_close.png')
         driver.quit()
         return
-
 
     try:
         print driver.current_url

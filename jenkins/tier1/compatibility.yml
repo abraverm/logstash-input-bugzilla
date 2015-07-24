@@ -1,5 +1,5 @@
 - job:
-    name: compatibility
+    name: logstash-input-bugzilla_compatibility
     project-type: freestyle
     description: |
       <h1>TO-DO</h1>
@@ -9,9 +9,9 @@
       and systems. It will never fail but will give a report with compatibility
       table and status if there was a regression.
       </p>
-    display-name: 'Compatibility'
+    display-name: '[LIP-Bugzilla] Compatibility'
     concurrent: true
-    node: docker-logstash
+    node: lip-bugzilla_docker-logstash
     builders:
       - shell: |
           set +x

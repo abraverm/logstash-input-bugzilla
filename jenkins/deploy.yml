@@ -1,6 +1,6 @@
 - job:
-    name: continues-deployment
-    display-name: Continues Deployment
+    name: logstash-input-bugzilla_continues-deployment
+    display-name: '[LIP-Bugzilla] Continues Deployment'
     project-type: freestyle
     description: |
       Apply submitted patches and start POC deployment.
@@ -19,7 +19,7 @@
                 branches:
                   - branch-compare-type: 'PLAIN'
                     branch-pattern: 'master'
-    node: docker
+    node: lip-bugzilla_docker
     parameters:
         - string:
             name: GERRIT_REFSPEC

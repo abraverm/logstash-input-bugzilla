@@ -1,17 +1,17 @@
 - job:
-    name: docker-image-deploy
+    name: logstash-input-bugzilla_docker-image-deploy
     project-type: freestyle
     description: |
       Deploy built docker images.
-    display-name: 'Docker image deploy'
+    display-name: '[LIP-Bugzilla] Docker image deploy'
     concurrent: false
-    node: docker
+    node: lip-bugzilla_docker
     builders:
       - shell: |
           set -x
           docker images
-          docker tag -f jjb_test abraverm/jenkins:jjb || echo "JJB image wasn't changed"
-          docker tag -f ruby_test abraverm/jenkins:ruby || echo "Ruby image wasn't changed"
-          docker tag -f node_test abraverm/jenkins:node || echo "Base node image wasn't changed"
-          docker tag -f host_test abraverm/jenkins:docker || echo "ELK host image wasn't changed"
-          docker tag -f logstash_test abraverm/jenkins:logstash || echo "Logstash image wasn't changed"
+          docker tag -f lip_bugzilla/jjb_test lip_bugzilla/jjb || echo "JJB image wasn't changed"
+          docker tag -f lip_bugzilla/ruby_test lip_bugzilla/ruby || echo "Ruby image wasn't changed"
+          docker tag -f lip_bugzilla/node_test lip_bugzilla/node || echo "Base node image wasn't changed"
+          docker tag -f lip_bugzilla/host_test lip_bugzilla/docker || echo "ELK host image wasn't changed"
+          docker tag -f lip_bugzilla/logstash_test lip_bugzilla/logstash || echo "Logstash image wasn't changed"

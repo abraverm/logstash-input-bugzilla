@@ -1,4 +1,4 @@
-FROM node_test
+FROM lip_bugzilla/node_test
 MAINTAINER Alexander Braverman Masis <abraverm@redhat.com>
 RUN rpm --rebuilddb && \
 yum install -y docker-io libcgroup python-pip dnsmasq sshpass PyYAML python-six unzip wget

@@ -1,5 +1,5 @@
 - job:
-    name: rspec-test
+    name: logstash-input-bugzilla_rspec-test
     project-type: freestyle
     description: |
       <p>
@@ -10,9 +10,9 @@
         <li>http://rspec.info/</li>
         <li>ttp://betterspecs.org/</li>
       </ul>
-    display-name: 'RSpec Tests'
+    display-name: '[LIP-Bugzilla] RSpec Tests'
     concurrent: true
-    node: docker-logstash
+    node: lip-bugzilla_docker-logstash
     scm:
      - logstash-input-bugzilla
     publishers:

@@ -1,5 +1,5 @@
 - job:
-    name: test-elk
+    name: logstash-input-bugzilla_test-elk
     project-type: freestyle
     description: |
       <h1>TO-DO</h1>
@@ -11,9 +11,9 @@
       <br>
       It will run a full ELK environment with the plugin.
       </p>
-    display-name: 'ELK System integration'
+    display-name: '[LIP-Bugzilla] ELK System integration'
     concurrent: true
-    node: docker
+    node: lip-bugzilla_docker
     parameters:
       - string:
           name: GERRIT_REFSPEC

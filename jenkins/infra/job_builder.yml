@@ -1,11 +1,11 @@
 - job:
-    name: job-builder-test
+    name: logstash-input-bugzilla_job-builder-test
     project-type: freestyle
     description: |
       Gate job which checks syntax of new or changed jobs.
-    display-name: 'Gate - Job builder Syntax test'
+    display-name: '[LIP-Bugzilla] Gate - Job builder Syntax test'
     concurrent: true
-    node: docker-job-builder
+    node: lip-bugzilla_docker-job-builder
     scm:
       - logstash-input-bugzilla
     triggers:
