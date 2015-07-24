@@ -1,12 +1,12 @@
 - job:
-    name: ruby-code-analysis
+    name: logstash-input-bugzilla_ruby-code-analysis
     project-type: freestyle
     description: |
       Does code analysis on ruby on new commits.<br>
       Using RuboCop for code analysis: https://github.com/bbatsov/rubocop
-    display-name: 'Ruby code analysis'
+    display-name: '[LIP-Bugzilla] Ruby code analysis'
     concurrent: true
-    node: docker-logstash
+    node: lip-bugzilla_docker-logstash
     scm:
       - logstash-input-bugzilla
     publishers:

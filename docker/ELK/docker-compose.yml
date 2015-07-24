@@ -1,5 +1,5 @@
 logstash:
-  image: logstash_test
+  image: lip_bugzilla_logstash_test
   links:
     - elasticsearch
   command: /bin/bash
