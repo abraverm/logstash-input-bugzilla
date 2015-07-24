@@ -14,6 +14,6 @@ RUN rm -rf phantomjs*
 
 # Selelnium
 RUN pip install selenium
-RUN wget ftp://195.220.108.108/linux/fedora/linux/updates/20/x86_64/libicu-50.1.2-11.fc20.x86_64.rpm
-RUN rpm --rebuilddb && rpm -ivh --force libicu-50.1.2-11.fc20.x86_64.rpm
+RUN wget ftp://ftp.pbone.net/mirror/archive.fedoraproject.org/fedora/linux/updates/20/x86_64/libicu-50.1.2-12.fc20.x86_64.rpm
+RUN rpm --rebuilddb && rpm -ivh --force libicu-50.1.2-12.fc20.x86_64.rpm
 RUN rm -rf *.rpm
