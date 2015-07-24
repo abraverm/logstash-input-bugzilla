@@ -1,4 +1,4 @@
-FROM node_test
+FROM lip_bugzilla/node_test
 MAINTAINER Alexander Braverman Masis <alexbmasis@gmail.com>
 ENV DEV_LOG 1.5
 ENV JRUBY 1.7.17
