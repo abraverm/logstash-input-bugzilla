@@ -1,12 +1,12 @@
 - job:
-    name: docker-build-elk-host
+    name: logstash-input-bugzilla_docker-build-elk-host
     project-type: freestyle
     description: |
       ELK host is a docker image with docker and other tool enabled for
       running docker inside docker.
-    display-name: 'Docker build ELK-host image'
+    display-name: '[LIP-Bugzilla] Docker build ELK-host image'
     concurrent: false
-    node: docker
+    node: lip-bugzilla_docker
     scm:
       - logstash-input-bugzilla
     builders:
@@ -21,8 +21,8 @@
             echo "============================"
             echo "Docker - Building ELK-host Image"
             echo "============================"
-            docker build -t "host_test" .
+            docker build -t "lip_bugzilla/host_test" .
           else
-            docker tag -f abraverm/jenkins:docker host_test
+            docker tag -f lip_bugzilla/docker host_test
             echo "Nothing changed"
           fi

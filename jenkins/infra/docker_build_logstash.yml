@@ -1,12 +1,12 @@
 - job:
-    name: docker-build-logstash
+    name: logstash-input-bugzilla_docker-build-logstash
     project-type: freestyle
     description: |
       Base images of Logstash with stable installation and ruby environment for
       development version.
-    display-name: 'Docker build Logstash'
+    display-name: '[LIP-Bugzilla] Docker build Logstash'
     concurrent: false
-    node: docker
+    node: lip-bugzilla_docker
     scm:
       - logstash-input-bugzilla
     builders:
@@ -21,7 +21,7 @@
             echo "================================"
             echo "Docker - Building Logstash Image"
             echo "================================"
-            docker build -t "logstash_test" .
+            docker build -t "lip_bugzilla/logstash_test" .
           else
             echo "Nothing changed"
           fi

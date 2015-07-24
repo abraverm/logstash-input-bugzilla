@@ -1,11 +1,11 @@
 - job:
-    name: docker-build-jjb
+    name: logstash-input-bugzilla_docker-build-jjb
     project-type: freestyle
     description: |
       Jenkins-Job-Builder is an image for testing jenkins jobs defenition.
-    display-name: 'Docker build JJB node image'
+    display-name: '[LIP-Bugzilla] Docker build JJB node image'
     concurrent: false
-    node: docker
+    node: lip-bugzilla_docker
     scm:
       - logstash-input-bugzilla
     builders:
@@ -20,7 +20,7 @@
             echo "============================"
             echo "Docker - Building JJB Node Image"
             echo "============================"
-            docker build -t "jjb_test" .
+            docker build -t "lip_bugzilla/jjb_test" .
           else
             echo "Nothing changed"
           fi

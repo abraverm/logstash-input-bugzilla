@@ -1,11 +1,11 @@
 - job:
-    name: docker-test-elk
+    name: logstash-input-bugzilla_docker-test-elk
     project-type: freestyle
     description: |
       Sanity test for ELK suite environment.
-    display-name: 'Docker ELK Test'
+    display-name: '[LIP-Bugzilla] Docker ELK Test'
     concurrent: false
-    node: docker
+    node: lip-bugzilla_docker
     scm:
       - logstash-input-bugzilla
     builders:

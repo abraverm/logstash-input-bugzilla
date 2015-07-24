@@ -1,5 +1,5 @@
 - job:
-    name: plugin-matrix
+    name: logstash-input-bugzilla_plugin-matrix
     project-type: freestyle
     description: |
       <h1>TO-DO</h1>
@@ -10,9 +10,9 @@
       It uses Logstash integration testing tools:<br>
       https://github.com/elastic/logstash-integration-testing
       </p>
-    display-name: 'Plugin Matrix'
+    display-name: '[LIP-Bugzilla] Plugin Matrix'
     concurrent: true
-    node: docker-logstash
+    node: lip-bugzilla_docker-logstash
     builders:
       - shell: |
           set +x

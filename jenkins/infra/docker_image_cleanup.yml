@@ -1,15 +1,15 @@
 - job:
-    name: docker-image-cleanup
+    name: logstash-input-bugzilla_docker-image-cleanup
     project-type: freestyle
     description: |
       Cleanup leftovers of image deployment.
-    display-name: 'Docker image cleanup'
+    display-name: '[LIP-Bugzilla] Docker image cleanup'
     concurrent: false
-    node: docker
+    node: lip-bugzilla_docker
     builders:
       - shell: |
           set -x
-          docker rmi jjb_test ruby_test host_test node_test logstash_test || echo "Some images were not found"
+          docker rmi lip_bugzilla/jjb_test lip_bugzilla/ruby_test lip_bugzilla/host_test lip_bugzilla/node_test lip_bugzilla/logstash_test || echo "Some images were not found"
           docker ps -a --no-trunc| grep 'Exit' | awk '{print $1}' | xargs -L 1 -r docker rm || echo "Some containers weren't deleted"
           docker images -a --no-trunc | grep none | awk '{print $3}' | xargs -L 1 -r docker rmi || echo "Some images weren't deleted"
           echo "=============================================================="
