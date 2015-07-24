@@ -1,5 +1,5 @@
 - job:
-    name: use-cases
+    name: logstash-input-bugzilla_use-cases
     project-type: flow
     description: |
       <h1>TO-DO</h1>
@@ -10,7 +10,7 @@
       role and a system, to achieve a goal. The actor can be a human, an
       external system, or time.
       </p>
-    display-name: 'Use cases test suite'
+    display-name: '[LIP-Bugzilla] Use cases test suite'
     concurrent: true
-    node: docker
+    node: lip-bugzilla_docker
     dsl: |

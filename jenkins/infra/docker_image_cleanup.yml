@@ -1,11 +1,11 @@
 - job:
-    name: docker-image-cleanup
+    name: logstash-input-bugzilla_docker-image-cleanup
     project-type: freestyle
     description: |
       Cleanup leftovers of image deployment.
-    display-name: 'Docker image cleanup'
+    display-name: '[LIP-Bugzilla] Docker image cleanup'
     concurrent: false
-    node: docker
+    node: lip-bugzilla_docker
     builders:
       - shell: |
           set -x

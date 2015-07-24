@@ -1,9 +1,9 @@
 - job:
-    name: infra-image-build
+    name: logstash-input-bugzilla_infra-image-build
     project-type: flow
     description: |
       Building, testing and deploying Docker images.
-    display-name: 'Infrasructure'
+    display-name: '[LIP-Bugzilla] Infrasructure'
     concurrent: false
     triggers:
       - gerrit:
@@ -25,27 +25,27 @@
     node: master
     dsl: |
       guard {
-        build("docker-build-node",
+        build("logstash-input-bugzilla_docker-build-node",
               gerrit_refspec: params["GERRIT_REFSPEC"],
               deploy: build.number
                 )
         parallel (
           {
-            build("docker-build-elk-host",
+            build("logstash-input-bugzilla_docker-build-elk-host",
                   gerrit_refspec: params["GERRIT_REFSPEC"],
                   deploy: build.number)
-            build("docker-build-logstash",
+            build("logstash-input-bugzilla_docker-build-logstash",
                   gerrit_refspec: params["GERRIT_REFSPEC"],
                   deploy: build.number)
-            build("docker-test-elk",
+            build("logstash-input-bugzilla_docker-test-elk",
                   gerrit_refspec: params["GERRIT_REFSPEC"],
                   deploy: build.number)
           },
-          { retry ( 2 ) { build("docker-build-jjb",
+          { retry ( 2 ) { build("logstash-input-bugzilla_docker-build-jjb",
                             gerrit_refspec: params["GERRIT_REFSPEC"],
                             deploy: build.number) }}
         )
-        build("docker-image-deploy", deploy: build.number)
+        build("logstash-input-bugzilla_docker-image-deploy", deploy: build.number)
       } rescue {
-        build("docker-image-cleanup", deploy: build.number)
+        build("logstash-input-bugzilla_docker-image-cleanup", deploy: build.number)
       }

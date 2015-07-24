@@ -1,13 +1,13 @@
 - job:
-    name: plugin-install
+    name: logstash-input-bugzilla_plugin-install
     project-type: freestyle
     description: |
       This is an integration test, part of Tier 1 test set.<br>
       It will install the plugin on Logstash. Major versions of Logstash have
       diffrent methods for installing a plugin.
-    display-name: 'Plugin install test'
+    display-name: '[LIP-Bugzilla] Plugin install test'
     concurrent: true
-    node: docker-logstash
+    node: lip-bugzilla_docker-logstash
     scm:
       - logstash-input-bugzilla
     builders:
@@ -22,4 +22,3 @@
           echo "====================="
       - shell:
           !include-raw ../scripts/plugin_install_1.4.2_packaged.sh
-

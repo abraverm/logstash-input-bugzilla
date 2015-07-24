@@ -1,11 +1,11 @@
 - job:
-    name: docker-build-node
+    name: logstash-input-bugzilla_docker-build-node
     project-type: freestyle
     description: |
       Node is a base image which jenkins can run its job on.
-    display-name: 'Docker build node image'
+    display-name: '[LIP-Bugzilla] Docker build node image'
     concurrent: false
-    node: docker
+    node: lip-bugzilla_docker
     scm:
       - logstash-input-bugzilla
     builders:
@@ -18,7 +18,7 @@
             echo "============================"
             echo "Docker - Building Node Image"
             echo "============================"
-            docker build -t "node_test" .
+            docker build -t "lip_bugzilla/node_test" .
           else
             docker tag -f abraverm/jenkins:node node_test
             echo "Nothing changed"

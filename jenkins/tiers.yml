@@ -1,6 +1,6 @@
 - job:
-    name: continues-integration
-    display-name: Continues Integration
+    name: logstash-input-bugzilla_continues-integration
+    display-name: '[LIP-Bugzilla] Continues Integration'
     project-type: flow
     description: |
       Testing and verifying submmited patches.<br>
@@ -72,14 +72,14 @@
           name: GERRIT_BRANCH
           default: origin/master
     dsl: |
-      build("tier-0", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
-      build("tier-1", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
-      build("tier-2", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
-      build("tier-3", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
+      build("logstash-input-bugzilla_tier-0", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
+      build("logstash-input-bugzilla_tier-1", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
+      build("logstash-input-bugzilla_tier-2", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
+      build("logstash-input-bugzilla_tier-3", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
 
 - job:
-    name: tier-0
-    display-name: 'Tier 0 - Unit testing'
+    name: logstash-input-bugzilla_tier-0
+    display-name: '[LIP-Bugzilla] Tier 0 - Unit testing'
     project-type: flow
     description: |
       <p>
@@ -118,13 +118,13 @@
     node: master
     dsl: |
       parallel (
-        { build("ruby-code-analysis", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"] ) },
-        { build("rspec-test", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"] )}
+        { build("logstash-input-bugzilla_ruby-code-analysis", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"] ) },
+        { build("logstash-input-bugzilla_rspec-test", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"] )}
       )
 
 - job:
-    name: tier-1
-    display-name: 'Tier 1 - Integration testing'
+    name: logstash-input-bugzilla_tier-1
+    display-name: '[LIP-Bugzilla] Tier 1 - Integration testing'
     concurrent: true
     node: master
     project-type: flow
@@ -152,12 +152,12 @@
           name: GERRIT_BRANCH
           default: origin/master
     dsl: |
-      build("plugin-install", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
-      build("compatibility", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
+      build("logstash-input-bugzilla_plugin-install", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
+      build("logstash-input-bugzilla_compatibility", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
 
 - job:
-    name: tier-2
-    display-name: 'Tier 2 - Component interface testing'
+    name: logstash-input-bugzilla_tier-2
+    display-name: '[LIP-Bugzilla] Tier 2 - Component interface testing'
     concurrent: true
     node: master
     project-type: flow
@@ -174,11 +174,11 @@
           name: GERRIT_BRANCH
           default: origin/master
     dsl: |
-      build("plugin-matrix", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
+      build("logstash-input-bugzilla_plugin-matrix", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
 
 - job:
-    name: tier-3
-    display-name: 'Tier 3 - System testing'
+    name: logstash-input-bugzilla_tier-3
+    display-name: '[LIP-Bugzilla] Tier 3 - System testing'
     concurrent: true
     node: master
     project-type: flow
@@ -212,6 +212,5 @@
           name: GERRIT_BRANCH
           default: origin/master
     dsl: |
-      build("test-elk", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
-      build("use-cases", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
-
+      build("logstash-input-bugzilla_test-elk", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
+      build("logstash-input-bugzilla_use-cases", GERRIT_REFSPEC: params["GERRIT_REFSPEC"], GERRIT_BRANCH: params["GERRIT_BRANCH"])
