@@ -1,5 +1,5 @@
 logstash:
-  image: abraverm/lip_bugzilla:logstash
+  image: lip_bugzilla/logstash
   command: /bin/bash
   expose:
     - "22"
