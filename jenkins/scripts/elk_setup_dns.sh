@@ -1,5 +1,5 @@
 #!/bin/bash
-cd "$WORKSPACE/logstash-input-bugzilla_ci/docker/ELK"
+cd "$WORKSPACE/logstash-input-bugzilla_ci/docker/ELK-bugzilla"
 echo "====================="
 echo "     Setting DNS"
 echo "====================="

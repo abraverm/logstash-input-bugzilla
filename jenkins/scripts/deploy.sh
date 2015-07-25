@@ -1,5 +1,5 @@
 #!/bin/bash
-pushd "$WORKSPACE/logstash-input-bugzilla_ci/docker/ELK-deploy"
+pushd "$WORKSPACE/logstash-input-bugzilla_ci/docker/ELK-deploy-bugzilla"
 
 echo "========================"
 echo "Removing old Deployment"
